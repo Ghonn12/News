@@ -10,7 +10,7 @@ class NewsApiService {
   
   // API Key - Ganti dengan API key Anda dari https://newsapi.org
   // Untuk demo, menggunakan key public (limited request)
-  static const String _apiKey = 'YOUR_NEWSAPI_API_KEY';
+  static const String _apiKey = '3cc3f5f1678849a9aea93a6b89f0a677';
   
   /// Method untuk mengambil top headlines
   /// [category] - kategori berita (business, entertainment, general, health, science, sports, technology)

@@ -15,28 +15,93 @@ class MyApp extends StatelessWidget {
     return GetMaterialApp(
       title: 'News App - MVC GetX',
       debugShowCheckedModeBanner: false,
-      
-      // Theme configuration
+
+      // THEME CONFIGURATION ===============================================
       theme: ThemeData(
-        primarySwatch: Colors.blue,
-        primaryColor: AppColors.primary,
+        // Background
         scaffoldBackgroundColor: AppColors.background,
-        appBarTheme: const AppBarTheme(
-          foregroundColor: Colors.white,
-        ),
+
+        // Primary accent monochrome
+        primaryColor: AppColors.accent,
         colorScheme: ColorScheme.fromSeed(
-          seedColor: AppColors.primary,
-          primary: AppColors.primary,
+          seedColor: AppColors.accent,
+          primary: AppColors.accent,
+          secondary: AppColors.textSecondary,
+          background: AppColors.background,
+        ),
+
+        // Typography
+        textTheme: const TextTheme(
+          bodyLarge: TextStyle(
+            color: AppColors.textPrimary,
+            fontSize: 16,
+          ),
+          bodyMedium: TextStyle(
+            color: AppColors.textPrimary,
+            fontSize: 14,
+          ),
+          titleLarge: TextStyle(
+            color: AppColors.textPrimary,
+            fontWeight: FontWeight.w600,
+            fontSize: 20,
+          ),
+        ),
+
+        // AppBar clean minimalis
+        appBarTheme: const AppBarTheme(
+          backgroundColor: AppColors.background,
+          elevation: 0,
+          centerTitle: true,
+          titleTextStyle: TextStyle(
+            color: AppColors.textPrimary,
+            fontSize: 18,
+            fontWeight: FontWeight.w600,
+          ),
+          iconTheme: IconThemeData(color: AppColors.accent),
+          foregroundColor: AppColors.textPrimary,
+        ),
+
+        // Input TextField theme
+        inputDecorationTheme: InputDecorationTheme(
+          filled: true,
+          fillColor: AppColors.greyLight,
+          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+            borderSide: const BorderSide(color: AppColors.border),
+          ),
+          enabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+            borderSide: const BorderSide(color: AppColors.border),
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+            borderSide: BorderSide(color: AppColors.accent, width: 1.4),
+          ),
+          hintStyle: const TextStyle(color: AppColors.textSecondary),
+        ),
+
+        // Buttons
+        elevatedButtonTheme: ElevatedButtonThemeData(
+          style: ElevatedButton.styleFrom(
+            backgroundColor: AppColors.accent,
+            foregroundColor: Colors.white,
+            padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
+            elevation: 0,
+          ),
         ),
       ),
-      
-      // GetX routing configuration
+
+      // ROUTING ============================================================
       initialRoute: AppPages.initial,
       getPages: AppPages.routes,
-      
-      // Default transitions
+
+      // TRANSITION =========================================================
       defaultTransition: Transition.cupertino,
-      transitionDuration: const Duration(milliseconds: 300),
+      transitionDuration: const Duration(milliseconds: 250),
     );
   }
 }

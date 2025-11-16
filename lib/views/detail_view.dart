@@ -5,210 +5,278 @@ import '../controllers/detail_controller.dart';
 import '../utils/app_colors.dart';
 import '../utils/date_formatter.dart';
 
-/// View untuk Detail Page (Menggunakan konsep MVC)
-/// Menampilkan detail berita lengkap
-class DetailView extends GetView<DetailController> {
+/// ======================================================
+/// DETAIL VIEW – BLACK & WHITE MINIMAL NEWS DESIGN
+/// Clean typography, high contrast, modern layout
+/// ======================================================
+class DetailView extends StatefulWidget {
   const DetailView({Key? key}) : super(key: key);
 
   @override
+  State<DetailView> createState() => _DetailViewState();
+}
+
+class _DetailViewState extends State<DetailView>
+    with SingleTickerProviderStateMixin {
+  final controller = Get.find<DetailController>();
+
+  late AnimationController _animController;
+  late Animation<double> _fadeIn;
+  late Animation<Offset> _slideUp;
+
+  @override
+  void initState() {
+    super.initState();
+    _animController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 800),
+    );
+
+    _fadeIn = CurvedAnimation(
+      parent: _animController,
+      curve: Curves.easeInOut,
+    );
+
+    _slideUp = Tween<Offset>(
+      begin: const Offset(0, 0.06),
+      end: Offset.zero,
+    ).animate(CurvedAnimation(
+      parent: _animController,
+      curve: Curves.easeOut,
+    ));
+
+    Future.delayed(const Duration(milliseconds: 150), () {
+      _animController.forward();
+    });
+  }
+
+  @override
+  void dispose() {
+    _animController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final article = controller.article;
+
     return Scaffold(
+      backgroundColor: AppColors.background,
       body: CustomScrollView(
         slivers: [
-          // App Bar dengan image
-          SliverAppBar(
-            expandedHeight: 300,
-            pinned: true,
-            backgroundColor: AppColors.primary,
-            flexibleSpace: FlexibleSpaceBar(
-              background: controller.article.urlToImage != null
-                  ? CachedNetworkImage(
-                      imageUrl: controller.article.urlToImage!,
-                      fit: BoxFit.cover,
-                      placeholder: (context, url) => Container(
-                        color: AppColors.background,
-                        child: const Center(child: CircularProgressIndicator()),
-                      ),
-                      errorWidget: (context, url, error) => Container(
-                        color: AppColors.background,
-                        child: const Icon(Icons.image_not_supported, size: 50),
-                      ),
-                    )
-                  : Container(
-                      color: AppColors.background,
-                      child: const Icon(Icons.article, size: 100, color: AppColors.textSecondary),
-                    ),
-            ),
-          ),
-          
-          // Content
-          SliverToBoxAdapter(
-            child: Padding(
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // Title
-                  Text(
-                    controller.article.title,
-                    style: const TextStyle(
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
-                      color: AppColors.textPrimary,
-                      height: 1.3,
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                  
-                  // Author & Date
-                  Row(
-                    children: [
-                      if (controller.article.author != null) ...[
-                        const Icon(Icons.person, size: 18, color: AppColors.textSecondary),
-                        const SizedBox(width: 6),
-                        Expanded(
-                          child: Text(
-                            controller.article.author!,
-                            style: const TextStyle(
-                              fontSize: 14,
-                              color: AppColors.textSecondary,
-                              fontWeight: FontWeight.w500,
-                            ),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        ),
-                      ],
-                    ],
-                  ),
-                  const SizedBox(height: 8),
-                  
-                  Row(
-                    children: [
-                      const Icon(Icons.access_time, size: 18, color: AppColors.textSecondary),
-                      const SizedBox(width: 6),
-                      Text(
-                        DateFormatter.formatFullDate(controller.article.publishedAt),
-                        style: const TextStyle(
-                          fontSize: 14,
-                          color: AppColors.textSecondary,
-                        ),
-                      ),
-                    ],
-                  ),
-                  
-                  const SizedBox(height: 24),
-                  const Divider(),
-                  const SizedBox(height: 24),
-                  
-                  // Description
-                  if (controller.article.description != null) ...[
-                    Text(
-                      controller.article.description!,
-                      style: const TextStyle(
-                        fontSize: 18,
-                        color: AppColors.textPrimary,
-                        fontWeight: FontWeight.w500,
-                        height: 1.5,
-                      ),
-                    ),
-                    const SizedBox(height: 24),
-                  ],
-                  
-                  // Content
-                  if (controller.article.content != null) ...[
-                    Text(
-                      controller.article.content!,
-                      style: const TextStyle(
-                        fontSize: 16,
-                        color: AppColors.textPrimary,
-                        height: 1.6,
-                      ),
-                    ),
-                    const SizedBox(height: 24),
-                  ],
-                  
-                  // Source URL
-                  if (controller.article.url != null) ...[
-                    const Divider(),
-                    const SizedBox(height: 16),
-                    Row(
-                      children: [
-                        const Icon(Icons.link, size: 18, color: AppColors.primary),
-                        const SizedBox(width: 8),
-                        Expanded(
-                          child: Text(
-                            'Sumber: ${controller.article.url}',
-                            style: const TextStyle(
-                              fontSize: 14,
-                              color: AppColors.primary,
-                              decoration: TextDecoration.underline,
-                            ),
-                            maxLines: 2,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                  
-                  const SizedBox(height: 32),
-                  
-                  // Action buttons
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: [
-                      _buildActionButton(
-                        icon: Icons.share,
-                        label: 'Share',
-                        onTap: controller.shareArticle,
-                      ),
-                      _buildActionButton(
-                        icon: Icons.bookmark_border,
-                        label: 'Bookmark',
-                        onTap: controller.bookmarkArticle,
-                      ),
-                    ],
-                  ),
-                  
-                  const SizedBox(height: 32),
-                ],
-              ),
-            ),
-          ),
+          _buildHeaderImage(article),
+          _buildBodyContent(article),
         ],
       ),
     );
   }
-  
-  /// Widget untuk action button
-  Widget _buildActionButton({
-    required IconData icon,
-    required String label,
-    required VoidCallback onTap,
-  }) {
+
+  /// =======================
+  /// HEADER IMAGE SECTION
+  /// =======================
+  SliverAppBar _buildHeaderImage(article) {
+    return SliverAppBar(
+      expandedHeight: 280,
+      pinned: true,
+      backgroundColor: Colors.white,
+      leading: IconButton(
+        icon: const Icon(Icons.arrow_back_ios_new_rounded,
+            color: Colors.black),
+        onPressed: Get.back,
+      ),
+      flexibleSpace: FlexibleSpaceBar(
+        background: Hero(
+          tag: article.urlToImage ?? article.title,
+          child: CachedNetworkImage(
+            imageUrl: article.urlToImage ?? '',
+            fit: BoxFit.cover,
+            placeholder: (context, url) => Container(
+              color: Colors.grey.shade200,
+              child: const Center(
+                child: CircularProgressIndicator(
+                  strokeWidth: 2,
+                  color: Colors.black87,
+                ),
+              ),
+            ),
+            errorWidget: (context, url, error) => Container(
+              color: Colors.grey.shade300,
+              child: const Icon(Icons.broken_image,
+                  size: 60, color: Colors.black45),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  /// ============================
+  /// CONTENT BODY (ARTICLE)
+  /// ============================
+  SliverToBoxAdapter _buildBodyContent(article) {
+    return SliverToBoxAdapter(
+      child: FadeTransition(
+        opacity: _fadeIn,
+        child: SlideTransition(
+          position: _slideUp,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 26),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _buildTitle(article.title),
+                const SizedBox(height: 12),
+                _buildMeta(article),
+                const SizedBox(height: 24),
+                const Divider(thickness: 1, color: Colors.black12),
+                const SizedBox(height: 24),
+                _buildDescription(article.description),
+                const SizedBox(height: 20),
+                _buildContent(article.content),
+                const SizedBox(height: 28),
+                _buildSourceLink(article.url),
+                const SizedBox(height: 32),
+                _buildActionButtons(),
+                const SizedBox(height: 50),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  /// TITLE
+  Widget _buildTitle(String title) {
+    return Text(
+      title,
+      style: const TextStyle(
+        fontSize: 26,
+        fontWeight: FontWeight.w800,
+        height: 1.3,
+        color: Colors.black,
+        fontFamily: 'Helvetica',
+      ),
+    );
+  }
+
+  /// META INFORMATION (author + date)
+  Widget _buildMeta(article) {
+    return Row(
+      children: [
+        if (article.author != null)
+          Flexible(
+            child: Text(
+              article.author!,
+              style: const TextStyle(
+                fontSize: 14,
+                color: Colors.black54,
+                fontWeight: FontWeight.w500,
+              ),
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+        if (article.author != null) const SizedBox(width: 8),
+        const Icon(Icons.access_time_rounded,
+            size: 16, color: Colors.black45),
+        const SizedBox(width: 4),
+        Text(
+          DateFormatter.formatFullDate(article.publishedAt),
+          style: const TextStyle(fontSize: 14, color: Colors.black54),
+        ),
+      ],
+    );
+  }
+
+  /// DESCRIPTION
+  Widget _buildDescription(String? description) {
+    if (description == null || description.isEmpty) return const SizedBox();
+    return Text(
+      description,
+      style: const TextStyle(
+        fontSize: 18,
+        color: Colors.black87,
+        height: 1.6,
+        fontWeight: FontWeight.w500,
+      ),
+    );
+  }
+
+  /// CONTENT TEXT
+  Widget _buildContent(String? content) {
+    if (content == null || content.isEmpty) return const SizedBox();
+    return Text(
+      content,
+      style: const TextStyle(
+        fontSize: 16,
+        color: Colors.black87,
+        height: 1.7,
+      ),
+    );
+  }
+
+  /// SOURCE LINK
+  Widget _buildSourceLink(String? url) {
+    if (url == null || url.isEmpty) return const SizedBox();
     return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(12),
+      onTap: controller.openSource,
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
         decoration: BoxDecoration(
-          border: Border.all(color: AppColors.primary),
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(4),
+          border: Border.all(color: Colors.black26, width: 1),
         ),
         child: Row(
-          mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(icon, color: AppColors.primary),
+            const Icon(Icons.link_rounded,
+                color: Colors.black, size: 20),
             const SizedBox(width: 8),
-            Text(
-              label,
-              style: const TextStyle(
-                color: AppColors.primary,
-                fontWeight: FontWeight.w600,
+            Expanded(
+              child: Text(
+                url,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: const TextStyle(
+                  fontSize: 14,
+                  color: Colors.black,
+                  decoration: TextDecoration.underline,
+                ),
               ),
             ),
           ],
+        ),
+      ),
+    );
+  }
+
+  /// ACTION BUTTONS
+  Widget _buildActionButtons() {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+      children: [
+        _buildMinimalButton(Icons.share_rounded, 'Bagikan',
+            controller.shareArticle),
+        _buildMinimalButton(
+            Icons.bookmark_add_outlined, 'Simpan', controller.bookmarkArticle),
+      ],
+    );
+  }
+
+  /// Minimalistic black-white button
+  Widget _buildMinimalButton(
+      IconData icon, String label, VoidCallback onTap) {
+    return OutlinedButton.icon(
+      onPressed: onTap,
+      icon: Icon(icon, color: Colors.black),
+      label: Text(
+        label,
+        style: const TextStyle(color: Colors.black),
+      ),
+      style: OutlinedButton.styleFrom(
+        side: const BorderSide(color: Colors.black, width: 1),
+        padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 12),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(6),
         ),
       ),
     );

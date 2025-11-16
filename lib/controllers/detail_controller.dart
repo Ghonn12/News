@@ -1,31 +1,51 @@
+import 'package:url_launcher/url_launcher.dart';
 import 'package:get/get.dart';
 import '../models/article_model.dart';
 
-/// Controller untuk Detail Page (Menggunakan konsep MVC)
 class DetailController extends GetxController {
-  // Article yang akan ditampilkan di detail page
   late ArticleModel article;
-  
+
   @override
   void onInit() {
     super.onInit();
-    // Mendapatkan data article yang dikirim dari halaman sebelumnya
     article = Get.arguments as ArticleModel;
   }
-  
-  /// Method untuk share article (bisa dikembangkan dengan package share)
+
+  /// 🔗 Buka sumber artikel di browser
+  void openSource() async {
+    final url = article.url;
+    if (url == null || url.isEmpty) {
+      Get.snackbar(
+        'Gagal',
+        'URL artikel tidak tersedia',
+        snackPosition: SnackPosition.BOTTOM,
+      );
+      return;
+    }
+
+    final uri = Uri.parse(url);
+    if (await canLaunchUrl(uri)) {
+      await launchUrl(uri, mode: LaunchMode.externalApplication);
+    } else {
+      Get.snackbar(
+        'Error',
+        'Tidak dapat membuka link artikel',
+        snackPosition: SnackPosition.BOTTOM,
+      );
+    }
+  }
+
+  /// 📤 Share artikel (belum diimplementasikan)
   void shareArticle() {
-    // TODO: Implement share functionality
     Get.snackbar(
       'Info',
       'Fitur share akan segera hadir',
       snackPosition: SnackPosition.BOTTOM,
     );
   }
-  
-  /// Method untuk bookmark article (bisa dikembangkan dengan local storage)
+
+  /// 🔖 Bookmark artikel
   void bookmarkArticle() {
-    // TODO: Implement bookmark functionality
     Get.snackbar(
       'Info',
       'Artikel berhasil di-bookmark',
